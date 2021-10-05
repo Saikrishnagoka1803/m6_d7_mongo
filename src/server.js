@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import listEndpoints from "express-list-endpoints";
 import cors from "cors";
 import blogsRouter from "./services/blogposts/index.js"
+import { notFoundHandler, badRequestHandler, genericErrorHandler } from "./errorhandlers.js"
 
 const server = express()
 const port = process.env.PORT || 3001
@@ -12,11 +13,17 @@ server.use(cors())
 
 server.use("/blogposts", blogsRouter)
 
+
+server.use(notFoundHandler)
+server.use(badRequestHandler)
+server.use(genericErrorHandler)
+
 mongoose.connect(process.env.MONGO_CONNECTION)
 
 mongoose.connection.on("connected", () => {
     console.log("successful!! to Mongo")
     server.listen(port, () => {
+        console.table(listEndpoints(server))
         console.log(`server running on port ${port}`)
     })
 })
